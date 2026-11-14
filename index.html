@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#04060b">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CLASSIFIED TRANSMISSION</title>
+  <meta name="description" content="SPECIAL INTELLIGENCE NETWORK — AUTHORIZED PERSONNEL ONLY">
+  <meta property="og:title" content="CLASSIFIED TRANSMISSION">
+  <meta property="og:description" content="AUTHORIZED PERSONNEL ONLY">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2304060b'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23e5212e' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23e5212e'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body class="theme-intel">
+
+  <!-- 画面全体の質感（ノイズ・走査線・周辺減光） -->
+  <div class="fx fx-noise" aria-hidden="true"></div>
+  <div class="fx fx-scan" aria-hidden="true"></div>
+  <div class="fx fx-vignette" aria-hidden="true"></div>
+
+  <!-- 上部HUD -->
+  <header class="hud" id="hud">
+    <div class="hud-row">
+      <div class="hud-brand">
+        <svg class="emblem-mini" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" /><circle cx="20" cy="20" r="11" /><path d="M20 3v8M20 29v8M3 20h8M29 20h8" /><circle class="dot" cx="20" cy="20" r="3" /></svg>
+        <div>
+          <div class="hud-title">INTELLIGENCE NETWORK</div>
+          <div class="hud-sub"><span class="live-dot"></span>SECURE CHANNEL</div>
+        </div>
+      </div>
+      <div class="stamp">TOP SECRET</div>
+    </div>
+    <div class="hud-meta">
+      <span id="hud-phase">PHASE 00 / 07</span>
+      <span id="hud-clock">--:--:--</span>
+      <span class="sig" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    </div>
+  </header>
+
+  <main id="app">
+
+    <!-- BOOT：読み込み中 -->
+    <section class="screen" id="screen-boot">
+      <div class="boot">
+        <svg class="emblem" viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="54" class="e-outer"/>
+          <circle cx="60" cy="60" r="40" class="e-mid"/>
+          <circle cx="60" cy="60" r="26" class="e-inner"/>
+          <path d="M60 2v22M60 96v22M2 60h22M96 60h22" class="e-cross"/>
+          <circle cx="60" cy="60" r="5" class="e-core"/>
+        </svg>
+        <p class="mono boot-label" id="boot-label">ESTABLISHING SECURE LINK</p>
+        <div class="bar"><div class="bar-fill" id="boot-bar"></div></div>
+        <p class="mono boot-pct"><span id="boot-pct">0</span>%</p>
+        <pre class="mono boot-log" id="boot-log" aria-hidden="true"></pre>
+      </div>
+    </section>
+
+    <!-- PAGE 01：極秘通信へのアクセス -->
+    <section class="screen" id="screen-access" data-phase="01">
+      <div class="panel">
+        <div class="panel-head"><span>// INCOMING TRANSMISSION</span><span class="blink-red">● REC</span></div>
+        <div class="log" id="access-log">
+          <p class="mono" data-type>SPECIAL INTELLIGENCE NETWORK</p>
+          <p class="mono" data-type>SECURE CONNECTION ESTABLISHED</p>
+          <p class="mono" data-type>CLASSIFICATION LEVEL : <b class="red">TOP SECRET</b></p>
+          <p data-type>対象者の認証を開始します。</p>
+        </div>
+        <div class="transmit" aria-hidden="true">
+          <span class="mono">TRANSMITTING</span>
+          <span class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        </div>
+      </div>
+
+      <div class="restricted reveal">
+        <div class="restricted-lines" aria-hidden="true"></div>
+        <h1 class="restricted-title">ACCESS<br>RESTRICTED</h1>
+        <p class="restricted-text">この通信は指定された対象者のみ閲覧可能です。</p>
+      </div>
+
+      <div class="actions reveal">
+        <button class="btn btn-red" id="btn-init" type="button"><span>INITIALIZE CONNECTION</span><b aria-hidden="true">→</b></button>
+      </div>
+    </section>
+
+    <!-- PAGE 02：暗証番号認証 -->
+    <section class="screen" id="screen-auth" data-phase="02">
+      <div class="section-title">
+        <p class="mono kicker">STEP 02 — BIOMETRIC BYPASS</p>
+        <h2 class="title-lg">IDENTITY<br>VERIFICATION</h2>
+      </div>
+      <div class="panel">
+        <p>通信を続行するには認証コードが必要です。</p>
+        <p class="mono red req"><span class="blink-red">■</span> AUTHORIZED CODE REQUIRED</p>
+      </div>
+
+      <form class="auth-form" id="auth-form" autocomplete="off" novalidate>
+        <label for="code-input" class="auth-label">暗証番号を入力してください。</label>
+        <div class="code-wrap" id="code-wrap">
+          <span class="code-prefix mono" aria-hidden="true">&gt;_</span>
+          <input id="code-input" class="code-input mono" type="text" inputmode="text" enterkeyhint="go"
+                 autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+                 maxlength="32" placeholder="CODE" aria-describedby="auth-error">
+        </div>
+        <button class="btn btn-red" type="submit" id="btn-auth"><span>AUTHENTICATE</span><b aria-hidden="true">→</b></button>
+        <p class="mono attempts" id="attempts">ATTEMPTS : 00</p>
+      </form>
+
+      <div class="denied" id="auth-error" role="alert" hidden>
+        <p class="denied-title mono">ACCESS DENIED</p>
+        <p>認証コードが一致しません。</p>
+        <p class="mono">PLEASE TRY AGAIN.</p>
+      </div>
+      <p class="hint mono" id="auth-hint" hidden></p>
+    </section>
+
+    <!-- PAGE 03：認証成功 -->
+    <section class="screen" id="screen-granted" data-phase="03">
+      <div class="verify-stage" id="verify-stage">
+        <div class="verify-beam" aria-hidden="true"></div>
+        <svg class="verify-ring" viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="52" class="ring-track"/>
+          <circle cx="60" cy="60" r="52" class="ring-draw"/>
+          <path d="M38 62 l15 15 l30 -32" class="ring-check"/>
+        </svg>
+        <p class="verify-status mono" id="verify-status">VERIFYING IDENTITY…</p>
+        <h2 class="granted-title" id="granted-title">ACCESS GRANTED</h2>
+      </div>
+
+      <div class="panel granted-panel" id="granted-panel">
+        <div class="panel-head"><span>// AUTHORIZATION RECORD</span><span class="green">VALID</span></div>
+        <dl class="kv mono">
+          <div><dt>IDENTITY</dt><dd class="green">VERIFIED</dd></div>
+          <div><dt>CONNECTION</dt><dd>SECURE / ESTABLISHED</dd></div>
+          <div><dt>TARGET</dt><dd id="granted-target">CODE 001</dd></div>
+          <div><dt>AUTHORIZATION</dt><dd class="green">APPROVED</dd></div>
+        </dl>
+      </div>
+
+      <div class="received reveal" id="received">
+        <p class="received-text">最終機密情報を受信しました。</p>
+        <div class="dl-progress" id="dl-progress" hidden>
+          <div class="bar"><div class="bar-fill" id="dl-bar"></div></div>
+          <p class="mono">DOWNLOADING… <span id="dl-pct">0</span>%</p>
+        </div>
+        <button class="btn btn-green" id="btn-download" type="button"><span>DOWNLOAD CLASSIFIED DATA</span><b aria-hidden="true">↓</b></button>
+      </div>
+    </section>
+
+    <!-- PAGE 04：機密情報消去演出 -->
+    <section class="screen" id="screen-erase" data-phase="04">
+      <div class="erase-run" id="erase-run">
+        <div class="warning-band"><span class="mono">WARNING</span></div>
+        <p class="mono red detect">CLASSIFIED DATA DETECTED</p>
+        <p class="erase-lead">通信記録の自動消去を開始します。</p>
+
+        <div class="countdown-wrap">
+          <p class="mono cd-label">SELF-DESTRUCT SEQUENCE</p>
+          <div class="countdown mono" id="countdown" aria-live="polite">10</div>
+          <div class="bar bar-red"><div class="bar-fill" id="cd-bar"></div></div>
+        </div>
+
+        <ul class="files mono" id="erase-files"></ul>
+
+        <p class="erase-foot mono">ALL DATA WILL BE ERASED.</p>
+      </div>
+
+      <div class="erase-done" id="erase-done" hidden>
+        <p class="mono muted">STATUS : PURGE COMPLETE</p>
+        <h2 class="erased-title mono" data-text="DATA ERASED">DATA ERASED</h2>
+        <p class="muted small">※ 演出です。お使いの端末のデータは一切削除されていません。</p>
+        <p class="mono recovered">1 ENCRYPTED FILE RECOVERED : <span class="green">FINAL_MESSAGE</span></p>
+        <button class="btn btn-red" id="btn-open-final" type="button"><span>OPEN FINAL MESSAGE</span><b aria-hidden="true">▶</b></button>
+      </div>
+    </section>
+
+    <!-- PAGE 05：最終動画 -->
+    <section class="screen" id="screen-video" data-phase="05">
+      <div class="section-title">
+        <p class="mono kicker"><span class="blink-red">●</span> PRIORITY ALPHA</p>
+        <h2 class="title-lg">FINAL<br>TRANSMISSION</h2>
+      </div>
+      <dl class="kv mono route">
+        <div><dt>FROM</dt><dd>SPECIAL INTELLIGENCE HEADQUARTERS</dd></div>
+        <div><dt>TO</dt><dd id="video-to">CODE 001</dd></div>
+      </dl>
+
+      <div class="video-frame" id="video-frame">
+        <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+        <video id="final-video" playsinline webkit-playsinline preload="metadata" controls controlslist="nodownload"></video>
+        <button class="play-overlay" id="play-overlay" type="button" aria-label="動画を再生">
+          <span class="play-icon" aria-hidden="true"></span>
+          <span class="mono">PLAY TRANSMISSION</span>
+          <span class="small muted">音声が出ます</span>
+        </button>
+        <div class="video-missing" id="video-missing" hidden>
+          <p class="mono red">NO SIGNAL</p>
+          <p><b>動画ファイル未設定</b></p>
+          <p class="small muted">（開発用表示）<br><code id="video-path">public/assets/final.mp4</code> を配置してください。</p>
+        </div>
+        <div class="video-loading mono" id="video-loading">DECRYPTING VIDEO…</div>
+      </div>
+
+      <div class="actions">
+        <p class="mono muted center small" id="video-note">再生が終わると次に進めます。</p>
+        <button class="btn btn-red" id="btn-confirm" type="button" hidden><span>CONFIRM FINAL MESSAGE</span><b aria-hidden="true">→</b></button>
+        <button class="link-btn mono" id="btn-skip" type="button" hidden>SKIP ›</button>
+      </div>
+    </section>
+
+    <!-- PAGE 06：送別式への招待状 -->
+    <section class="screen screen-gold" id="screen-invite" data-phase="06">
+      <div class="invite">
+        <svg class="emblem gold-emblem" viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="60" r="54" class="e-outer"/>
+          <circle cx="60" cy="60" r="46" class="e-mid"/>
+          <path d="M60 30 l7.6 15.4 17 2.5 -12.3 12 2.9 16.9 -15.2 -8 -15.2 8 2.9 -16.9 -12.3 -12 17 -2.5z" class="e-star"/>
+          <text x="60" y="98" text-anchor="middle" class="e-text">S · I · H</text>
+        </svg>
+
+        <p class="gold-kicker mono">MISSION CONFIRMED</p>
+        <h2 class="gold-title">OPERATION : FAREWELL</h2>
+        <div class="gold-rule"><i></i></div>
+
+        <p class="to-line">対象者 <span id="invite-code">CODE 001</span> へ。</p>
+        <p class="to-name" id="invite-name"></p>
+
+        <figure class="photo" id="invite-photo" hidden>
+          <img id="invite-photo-img" alt="">
+          <figcaption class="mono">PERSONNEL FILE — <span id="photo-code">CODE 001</span></figcaption>
+        </figure>
+
+        <div class="letter" id="letter"></div>
+
+        <div class="info">
+          <p class="info-head">【開催情報】</p>
+          <dl class="info-list" id="info-list"></dl>
+          <a class="btn btn-gold btn-sm" id="map-link" href="#" target="_blank" rel="noopener" hidden><span>MAP</span><b aria-hidden="true">↗</b></a>
+        </div>
+
+        <div class="gold-rule"><i></i></div>
+        <p class="awaits">YOUR FINAL<br>MISSION AWAITS.</p>
+        <p class="must">必ずご参加ください。</p>
+
+        <div class="actions">
+          <button class="btn btn-gold" id="btn-accept" type="button"><span>ACCEPT THE MISSION</span><b aria-hidden="true">→</b></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 07：MISSION COMPLETE -->
+    <section class="screen screen-gold" id="screen-complete" data-phase="07">
+      <div class="complete">
+        <p class="mono gold-kicker c-line">MISSION COMPLETE</p>
+        <p class="c-en c-line">THANK YOU FOR YOUR SERVICE.<br>WE WILL NEVER FORGET YOU.</p>
+        <p class="mono c-hq c-line">— SPECIAL INTELLIGENCE HEADQUARTERS —</p>
+        <div class="c-code c-line" id="complete-code">CODE 001</div>
+        <p class="c-name c-line" id="complete-name"></p>
+        <p class="c-message c-line" id="complete-message">これまで本当にありがとうございました。</p>
+        <div class="c-links c-line">
+          <button class="link-btn mono" id="btn-back-invite" type="button">招待状をもう一度見る</button>
+          <button class="link-btn mono" id="btn-restart" type="button">最初から再生する</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 画面切り替え演出 -->
+  <div class="tx" id="tx" aria-hidden="true">
+    <div class="tx-top"></div><div class="tx-bot"></div><div class="tx-line"></div>
+    <p class="tx-text mono" id="tx-text">DECRYPTING…</p>
+  </div>
+  <!-- 消去後のブラックアウト -->
+  <div class="blackout" id="blackout" aria-hidden="true"><span class="mono">■</span></div>
+  <!-- 小さな通知 -->
+  <div class="toast mono" id="toast" role="status" hidden></div>
+
+  <noscript><div class="noscript">この通信を表示するには JavaScript を有効にしてください。</div></noscript>
+
+  <script src="src/config.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
