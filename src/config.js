@@ -16,7 +16,7 @@ window.MISSION_CONFIG = {
 
   // 何回まちがえたらヒントを出すか（0 にするとヒントを出しません）
   hintAfterFailures: 3,
-  hintText: "HINT : 暗号カードの解読結果のうち、最初の単語を入力せよ。",
+  hintText: "ヒント：暗号カードを解読して出てきた言葉の、最初の単語を入力してください。",
 
   /* ---------- 対象者 ---------- */
   targetCode: "CODE 001",
