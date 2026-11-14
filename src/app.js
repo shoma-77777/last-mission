@@ -97,7 +97,7 @@
         if (g !== gen) { el.textContent = text; el.classList.remove('caret'); return reject('cancel'); }
         i++;
         el.textContent = text.slice(0, i);
-        if (i % 2) Sound.type();
+
         if (i >= text.length) { el.classList.remove('caret'); return resolve(); }
         timers.push(setTimeout(next, step));
       })();
@@ -110,13 +110,6 @@
     var tmp = document.createElement('div'); tmp.innerHTML = html;
     return typeText(el, tmp.textContent, cps).then(function () { el.innerHTML = html; }, function (e) { el.innerHTML = html; throw e; });
   }
-
-  /* ---------- HUD ---------- */
-  function tickClock() {
-    var d = new Date();
-    $('hud-clock').textContent = pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()) + ' JST';
-  }
-  tickClock(); setInterval(tickClock, 1000);
 
   function toast(msg, ms) {
     var t = $('toast'); t.textContent = msg; t.hidden = false;
@@ -143,7 +136,6 @@
     el.classList.add('active');
     document.body.classList.toggle('theme-gold', !!GOLD_PAGES[page]);
     document.body.classList.toggle('theme-intel', !GOLD_PAGES[page]);
-    $('hud-phase').textContent = 'PHASE ' + (el.dataset.phase || '00') + ' / 07';
     try { window.scrollTo(0, 0); } catch (e) { }
     current = page;
     if (Screens[page] && Screens[page].enter) Screens[page].enter();
@@ -152,7 +144,7 @@
   // 映画のような切り替え（上下から閉じて、ラインが走り、開く）
   function cinematic(run, label, gold) {
     var tx = $('tx');
-    $('tx-text').textContent = label || 'DECRYPTING…';
+    $('tx-text').textContent = label || '';
     tx.classList.toggle('gold', !!gold);
     tx.classList.remove('open', 'close');
     tx.classList.add('on');
@@ -187,7 +179,7 @@
     if (target !== p) { try { history.replaceState({ p: target }, ''); } catch (err) { } }
     if (target === current) return;
     busy = false;
-    go(target, { push: false, force: true, label: 'REROUTING…' });
+    go(target, { push: false, force: true, label: '' });
   });
 
   /* ======================================================================
@@ -199,20 +191,18 @@
   Screens.boot = {
     enter: function () {
       var g = gen;
-      var bar = $('boot-bar'), pct = $('boot-pct'), log = $('boot-log');
+      var bar = $('boot-bar');
       var resume = state.page && state.page !== 'access';
-      $('boot-label').textContent = resume ? 'RESUMING SECURE SESSION' : 'ESTABLISHING SECURE LINK';
-      var lines = ['> handshake ......... OK', '> cipher AES-256 .... OK', '> route via node 7 .. OK', '> trace scrubber .... ON', '> identity module ... READY'];
-      var p = 0, li = 0, start = Date.now();
+      $('boot-label').textContent = resume ? '通信を再開しています' : '通信を確立しています';
+      var p = 0, start = Date.now();
       (function loop() {
         if (g !== gen) return;
         p = Math.min(100, p + Math.random() * 9 + 3);
-        bar.style.width = p + '%'; pct.textContent = Math.floor(p);
-        if (p / 20 > li && li < lines.length) { log.textContent += lines[li++] + '\n'; }
+        bar.style.width = p + '%';
         if (p >= 100 && Date.now() - start > 1600) {
           later(function () {
             var target = resume ? guard(state.page) : 'access';
-            go(target, { replace: true, label: 'CONNECTED' });
+            go(target, { replace: true, label: '' });
           }, 300);
           return;
         }
@@ -231,16 +221,16 @@
       Array.prototype.forEach.call(reveals, function (r) { r.classList.remove('on'); });
       var chain = wait(250);
       Array.prototype.forEach.call(lines, function (l) {
-        chain = chain.then(function () { alive(g); l.style.visibility = 'visible'; return typeLine(l, 45); }).then(function () { return wait(160); });
+        chain = chain.then(function () { alive(g); l.style.visibility = 'visible'; return typeLine(l, 22); }).then(function () { return wait(160); });
       });
       chain.then(function () {
-        reveals[0].classList.add('on'); Sound.tone(220, 0.4, 'sawtooth', 0.04);
-        return wait(500);
+        reveals[0].classList.add('on'); Sound.tone(110, 0.8, 'sine', 0.06);
+        return wait(800);
       }).then(function () { reveals[1].classList.add('on'); }).catch(function () { });
     }
   };
   $('btn-init').addEventListener('click', function () {
-    Sound.click(); go('auth', { label: 'CONNECTING…' });
+    Sound.click(); go('auth', { label: '接続中' });
   });
 
   /* ---------- PAGE 02 ---------- */
@@ -270,10 +260,9 @@
       try { input.blur(); } catch (err) { }
       Sound.success(); vibrate(40);
       state.authed = true; Store.set({ authed: true });
-      setTimeout(function () { go('granted', { label: 'CODE ACCEPTED' }); }, 250);
+      setTimeout(function () { go('granted', { label: '照合中' }); }, 250);
     } else {
       failures++;
-      $('attempts').textContent = 'ATTEMPTS : ' + pad2(Math.min(failures, 99));
       var err = $('auth-error');
       err.hidden = true; void err.offsetWidth; err.hidden = false;
       var wrap = $('code-wrap');
@@ -292,35 +281,34 @@
   Screens.granted = {
     enter: function () {
       var g = gen;
-      var stage = $('verify-stage'), panel = $('granted-panel'), rows = panel.querySelectorAll('.kv > div');
+      var stage = $('verify-stage'), panel = $('granted-panel'), rows = panel.querySelectorAll(':scope > div');
       var received = $('received');
       stage.classList.remove('scanning', 'granted');
       panel.classList.remove('on'); received.classList.remove('on');
       Array.prototype.forEach.call(rows, function (r) { r.classList.remove('on'); });
-      $('verify-status').textContent = 'VERIFYING IDENTITY…';
+      $('verify-status').textContent = '照合中…';
       $('dl-progress').hidden = true; $('btn-download').disabled = false;
       void stage.offsetWidth;
 
       if (state.grantedSeen) { // 2回目以降は短縮
-        stage.classList.add('granted'); $('verify-status').textContent = 'IDENTITY VERIFIED';
+        stage.classList.add('granted');
         panel.classList.add('on');
         Array.prototype.forEach.call(rows, function (r) { r.classList.add('on'); });
         received.classList.add('on');
         return;
       }
       stage.classList.add('scanning');
-      Sound.tone(300, 2.8, 'sawtooth', 0.02);
+      Sound.tone(220, 2.8, 'sine', 0.02);
       wait(3000).then(function () {
         alive(g);
         stage.classList.remove('scanning'); stage.classList.add('granted');
-        $('verify-status').textContent = 'IDENTITY VERIFIED';
         Sound.success(); vibrate(30);
         return wait(700);
       }).then(function () {
         panel.classList.add('on');
         var chain = Promise.resolve();
         Array.prototype.forEach.call(rows, function (r) {
-          chain = chain.then(function () { return wait(320); }).then(function () { r.classList.add('on'); Sound.click(); });
+          chain = chain.then(function () { return wait(450); }).then(function () { r.classList.add('on'); Sound.click(); });
         });
         return chain;
       }).then(function () { return wait(500); }).then(function () {
@@ -338,23 +326,21 @@
       if (g !== gen) return;
       p = Math.min(100, p + Math.random() * 14 + 6);
       $('dl-bar').style.width = p + '%'; $('dl-pct').textContent = Math.floor(p);
-      if (p >= 100) { later(function () { go('erase', { label: 'WARNING' }); }, 350); return; }
+      if (p >= 100) { later(function () { go('erase', { label: '' }); }, 350); return; }
       later(step, 110);
     })();
   });
 
   /* ---------- PAGE 04 ---------- */
-  var FILES = ['MISSION_LOG_1987-2026.dat', 'AGENT_PROFILE_001.enc', 'FIELD_REPORTS.zip', 'COMM_RECORDS.log', 'SAFEHOUSE_LIST.db', 'TEAM_ROSTER.enc'];
   var cdInterval = null;
   Screens.erase = {
     enter: function () {
       var run = $('erase-run'), done = $('erase-done');
       if (state.erased) { run.hidden = true; done.hidden = false; return; }
       run.hidden = false; done.hidden = true;
-      $('erase-files').innerHTML = FILES.map(function (f) { return '<li><span>' + esc(f) + '</span><span>LOCKED</span></li>'; }).join('');
       var total = C.countdownSeconds;
       var endAt = Date.now() + total * 1000;
-      var cd = $('countdown'), bar = $('cd-bar'), items = $('erase-files').children;
+      var cd = $('countdown'), bar = $('cd-bar');
       var shown = null;
       function render() {
         var ms = Math.max(0, endAt - Date.now());
@@ -365,17 +351,11 @@
           cd.textContent = pad2(sec);
           cd.classList.remove('tick'); void cd.offsetWidth; cd.classList.add('tick');
           Sound.tick(sec <= 3); if (sec <= 3) vibrate(30);
-          var goneCount = Math.floor((total - sec) / total * items.length);
-          for (var i = 0; i < items.length; i++) {
-            if (i < goneCount && !items[i].classList.contains('gone')) { items[i].classList.add('gone'); items[i].lastChild.textContent = 'ERASED'; }
-            else if (i === goneCount) items[i].lastChild.textContent = 'ERASING…';
-          }
         }
         if (ms <= 0) finish();
       }
       function finish() {
         clearInterval(cdInterval); cdInterval = null;
-        for (var i = 0; i < items.length; i++) { items[i].classList.add('gone'); items[i].lastChild.textContent = 'ERASED'; }
         state.erased = true; Store.set({ erased: true });
         var bo = $('blackout');
         bo.classList.add('on'); Sound.boom(); vibrate(200);
@@ -394,7 +374,7 @@
       $('blackout').classList.remove('on');
     }
   };
-  $('btn-open-final').addEventListener('click', function () { Sound.click(); go('video', { label: 'DECRYPTING FINAL MESSAGE…' }); });
+  $('btn-open-final').addEventListener('click', function () { Sound.click(); go('video', { label: '復号中' }); });
 
   /* ---------- PAGE 05 ---------- */
   var video = $('final-video');
@@ -402,7 +382,7 @@
   function revealConfirm() {
     $('btn-confirm').hidden = false;
     $('btn-skip').hidden = true;
-    $('video-note').textContent = 'TRANSMISSION RECEIVED.';
+    $('video-note').textContent = 'メッセージの受信が完了しました。';
   }
   function markMissing() {
     $('video-missing').hidden = false;
@@ -470,13 +450,12 @@
   $('btn-skip').addEventListener('click', function () { try { video.pause(); } catch (e) { } revealConfirm(); });
   $('btn-confirm').addEventListener('click', function () {
     try { video.pause(); } catch (e) { }
-    Sound.click(); go('invite', { label: 'MESSAGE CONFIRMED' });
+    Sound.click(); go('invite', { label: '' });
   });
 
   /* ---------- PAGE 06 ---------- */
   function buildInvite() {
     $('invite-code').textContent = C.targetCode;
-    $('photo-code').textContent = C.targetCode;
     $('invite-name').textContent = C.targetName ? C.targetName + ' 殿' : '';
     $('invite-name').hidden = !C.targetName;
 
@@ -512,7 +491,7 @@
   };
   $('btn-accept').addEventListener('click', function () {
     Sound.click(); state.completed = true; Store.set({ completed: true });
-    go('complete', { label: 'MISSION ACCEPTED' });
+    go('complete', { label: '' });
   });
 
   /* ---------- PAGE 07 ---------- */
@@ -524,21 +503,21 @@
     enter: function () {
       var lines = document.querySelectorAll('#screen-complete .c-line');
       Array.prototype.forEach.call(lines, function (l) { l.classList.remove('on'); });
-      var delays = [300, 1300, 2300, 3300, 3700, 5000, 6500];
+      var delays = [400, 1600, 3000, 4600, 5000, 6300, 7400, 8400];
       Array.prototype.forEach.call(lines, function (l, i) {
-        later(function () { l.classList.add('on'); if (i === 3) Sound.chime(); }, delays[i] || 6500);
+        later(function () { l.classList.add('on'); if (i === 3) Sound.chime(); }, delays[i] || 8400);
       });
     }
   };
-  $('btn-back-invite').addEventListener('click', function () { go('invite', { label: 'OPERATION : FAREWELL' }); });
+  $('btn-back-invite').addEventListener('click', function () { go('invite', { label: '' }); });
   $('btn-restart').addEventListener('click', function () {
     Store.clear(); state = {}; failures = 0;
-    $('attempts').textContent = 'ATTEMPTS : 00'; $('auth-hint').hidden = true;
+    $('auth-hint').hidden = true;
     try { video.pause(); video.currentTime = 0; } catch (e) { }
     $('btn-confirm').hidden = true; $('play-overlay').hidden = !$('video-missing').hidden;
-    $('video-note').textContent = '再生が終わると次に進めます。';
+    $('video-note').textContent = '再生が終わると、次に進めます。';
     if (!$('video-missing').hidden) revealConfirm();
-    go('access', { label: 'REBOOTING…' });
+    go('access', { label: '' });
   });
 
   /* ---------- 開発用：?debug=1 で各画面へジャンプ ---------- */
