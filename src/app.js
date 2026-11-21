@@ -464,7 +464,7 @@
     var ev = C.event, rows = [
       ['開催日時', ev.date],
       ['開催場所', ev.venue, ev.address],
-      ['集合時間', ev.meetingTime],
+      ['ターゲット確保時間', ev.meetingTime],
       ['ドレスコード', ev.dressCode],
       ['参加者', ev.participants]
     ];
@@ -503,9 +503,9 @@
     enter: function () {
       var lines = document.querySelectorAll('#screen-complete .c-line');
       Array.prototype.forEach.call(lines, function (l) { l.classList.remove('on'); });
-      var delays = [400, 1600, 3000, 4600, 5000, 6300, 7400, 8400];
+      var delays = [400, 1600, 2000, 3300, 4400, 5400];
       Array.prototype.forEach.call(lines, function (l, i) {
-        later(function () { l.classList.add('on'); if (i === 3) Sound.chime(); }, delays[i] || 8400);
+        later(function () { l.classList.add('on'); if (i === 1) Sound.chime(); }, delays[i] || 5400);
       });
     }
   };
