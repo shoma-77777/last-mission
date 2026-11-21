@@ -277,12 +277,13 @@ body.theme-gold .hud { display: none; }
 .letter p + p { margin-top: 1.1em; }
 .letter p { opacity: 0; transition: opacity 1.2s ease; }
 .letter p.on { opacity: 1; }
+.letter:empty { display: none; }
 .info { width: 100%; border-top: 1px solid var(--gold-dim); border-bottom: 1px solid var(--gold-dim); padding: 22px 4px; display: flex; flex-direction: column; gap: 14px; }
 .info-head { font-family: var(--serif); color: var(--gold-light); font-size: 17px; letter-spacing: .3em; padding-left: .3em; }
 .info-list { margin: 0; text-align: left; }
-.info-list > div { display: grid; grid-template-columns: 6.4em 1fr; gap: 8px; padding: 10px 0; border-bottom: 1px solid rgba(197,160,82,.14); }
+.info-list > div { display: grid; grid-template-columns: 8.4em 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(197,160,82,.14); }
 .info-list > div:last-child { border-bottom: 0; }
-.info-list dt { color: var(--gold); font-size: 14px; }
+.info-list dt { color: var(--gold); font-size: 14px; white-space: nowrap; }
 .info-list dd { margin: 0; font-size: 15px; line-height: 1.7; }
 .info-list dd small { display: block; color: var(--muted); font-size: 13px; }
 .awaits { font-family: var(--serif); font-weight: 700; font-size: clamp(24px, 7vw, 32px); line-height: 1.7; letter-spacing: .12em; color: var(--gold-light); }
