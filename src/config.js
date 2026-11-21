@@ -31,7 +31,7 @@ window.MISSION_CONFIG = {
     mapUrl: "",               // GoogleマップのURLを入れると「MAP」ボタンが出ます
     meetingTime: "16:20",
     dressCode: "",
-    participants: "管理本部メンバー 一同（約30名）"
+    participants: "管理本部メンバー 一同"
   },
 
   /* ---------- 招待状の本文（1行 = 1段落） ---------- */
