@@ -464,7 +464,7 @@
     var ev = C.event, rows = [
       ['開催日時', ev.date],
       ['開催場所', ev.venue, ev.address],
-      ['ターゲット確保時間', ev.meetingTime],
+      ['作戦開始時刻', ev.meetingTime],
       ['ドレスコード', ev.dressCode],
       ['参加者', ev.participants]
     ];
