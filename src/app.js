@@ -142,7 +142,9 @@
   }
 
   // 映画のような切り替え（上下から閉じて、ラインが走り、開く）
+  var txTimers = [];
   function cinematic(run, label, gold) {
+    txTimers.forEach(clearTimeout); txTimers = [];
     var tx = $('tx');
     $('tx-text').textContent = label || '';
     tx.classList.toggle('gold', !!gold);
@@ -150,11 +152,11 @@
     tx.classList.add('on');
     void tx.offsetWidth;
     tx.classList.add('close');
-    setTimeout(function () {
+    txTimers.push(setTimeout(function () {
       run();
       tx.classList.remove('close'); tx.classList.add('open');
-      setTimeout(function () { tx.classList.remove('on', 'open'); busy = false; }, 420);
-    }, 560);
+      txTimers.push(setTimeout(function () { tx.classList.remove('on', 'open'); busy = false; }, 420));
+    }, 560));
   }
 
   function go(page, opts) {
@@ -177,7 +179,7 @@
     if (!p) return;
     var target = guard(p);
     if (target !== p) { try { history.replaceState({ p: target }, ''); } catch (err) { } }
-    if (target === current) return;
+    if (target === current && !busy) return;
     busy = false;
     go(target, { push: false, force: true, label: '' });
   });
@@ -235,6 +237,12 @@
 
   /* ---------- PAGE 02 ---------- */
   var failures = 0;
+  // 暗証番号が数字だけなら、スマホで数字キーボードを出す
+  if (/^[0-9]+$/.test(normalize(C.passcode))) {
+    $('code-input').setAttribute('inputmode', 'numeric');
+    $('code-input').setAttribute('pattern', '[0-9]*');
+    $('code-input').setAttribute('autocapitalize', 'off');
+  }
   Screens.auth = {
     enter: function () {
       $('auth-error').hidden = true;
