@@ -265,13 +265,9 @@
     var c = cleanCode(this.value);
     if (c !== this.value) this.value = c;
     renderSlots();
-    // 桁数がそろったら自動で認証
-    if (c.length === CODE_LEN && !busy) {
-      setTimeout(function () {
-        if ($('code-input').value.length === CODE_LEN && !busy) $('auth-form').requestSubmit ? $('auth-form').requestSubmit() : $('btn-auth').click();
-      }, 180);
-    }
   });
+  // 枠のどこをタップしても入力できるように
+  $('code-wrap').addEventListener('click', function () { try { $('code-input').focus(); } catch (e) { } });
   $('code-input').addEventListener('focus', function () { $('code-wrap').classList.add('focused'); renderSlots(); });
   $('code-input').addEventListener('blur', function () { $('code-wrap').classList.remove('focused'); });
   renderSlots();
