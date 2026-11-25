@@ -243,10 +243,44 @@
     $('code-input').setAttribute('pattern', '[0-9]*');
     $('code-input').setAttribute('autocapitalize', 'off');
   }
+  // 暗証番号の枠（桁数ぶん）
+  var CODE_LEN = Math.max(1, Math.min(12, normalize(C.passcode).length || 4));
+  var CODE_NUMERIC = /^[0-9]+$/.test(normalize(C.passcode));
+  if (CODE_NUMERIC) $('auth-label').textContent = '暗証番号（数字' + CODE_LEN + '桁）を入力してください。';
+  $('code-slots').innerHTML = new Array(CODE_LEN + 1).join('<span class="code-slot"></span>');
+  function renderSlots() {
+    var v = $('code-input').value, slots = $('code-slots').children;
+    for (var i = 0; i < slots.length; i++) {
+      slots[i].textContent = v.charAt(i);
+      slots[i].classList.toggle('filled', i < v.length);
+      slots[i].classList.toggle('current', i === v.length);
+    }
+  }
+  function cleanCode(s) {
+    s = normalize(s).replace(/[\s　]/g, '');
+    if (CODE_NUMERIC) s = s.replace(/[^0-9]/g, '');
+    return s.slice(0, CODE_LEN);
+  }
+  $('code-input').addEventListener('input', function () {
+    var c = cleanCode(this.value);
+    if (c !== this.value) this.value = c;
+    renderSlots();
+    // 桁数がそろったら自動で認証
+    if (c.length === CODE_LEN && !busy) {
+      setTimeout(function () {
+        if ($('code-input').value.length === CODE_LEN && !busy) $('auth-form').requestSubmit ? $('auth-form').requestSubmit() : $('btn-auth').click();
+      }, 180);
+    }
+  });
+  $('code-input').addEventListener('focus', function () { $('code-wrap').classList.add('focused'); renderSlots(); });
+  $('code-input').addEventListener('blur', function () { $('code-wrap').classList.remove('focused'); });
+  renderSlots();
+
   Screens.auth = {
     enter: function () {
       $('auth-error').hidden = true;
       $('code-input').value = '';
+      renderSlots();
       $('btn-auth').disabled = false;
       // iOSではユーザー操作外のfocusでキーボードは出ないため、PCのみ自動フォーカス
       if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
@@ -276,7 +310,7 @@
       var wrap = $('code-wrap');
       wrap.classList.remove('shake'); void wrap.offsetWidth; wrap.classList.add('shake');
       Sound.error(); vibrate([80, 40, 80]);
-      input.select && input.select();
+      later(function () { input.value = ''; renderSlots(); }, 450);
       if (C.hintAfterFailures > 0 && failures >= C.hintAfterFailures && C.hintText) {
         $('auth-hint').textContent = C.hintText; $('auth-hint').hidden = false;
       }
